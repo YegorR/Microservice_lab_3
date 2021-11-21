@@ -1,0 +1,49 @@
+version:  '3.7'
+ 
+services: #объявление блока с описанием сервисов
+
+
+ javatrack: 
+   environment:
+     - DATABASE_HOST=db_container
+     - DATABASE_USER=${DATABASE_USER}
+     - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+     - DATABASE_NAME=${DATABASE_NAME}
+     - TRACK_ADDRESS=javatrack
+   container_name: javatrack #имя контейнера
+   build: ms #указание пути к докерфайлу для сборки
+   restart: on-failure #правило перезапуска контейнера
+   expose: #открытый порт внутренней сети
+     - "8091" 
+   depends_on:
+     - db_container
+
+
+
+ my_nginx:
+   container_name: my_nginx
+   image: nginx:latest #изображение, которое будет запускаться
+   restart: on-failure
+   ports: #открытый внешний порт, который проксируется на внутренний 
+     - "80:80"
+   volumes:
+     - ./logs/nginx:/var/log/nginx
+     - ./config/nginx:/etc/nginx/conf.d #пусть до настроек
+   depends_on:
+     - javatrack
+ 
+ 
+ 
+ 
+ db_container:
+   container_name: db_container
+   image: postgres
+   restart: on-failure
+   expose:
+     - "5432"
+   environment: #использование переменных окружения
+     POSTGRES_USER: ${DATABASE_USER}
+     POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+     POSTGRES_DB: ${DATABASE_NAME}
+   volumes:
+     - ./db:/var/lib/postgresql/data
