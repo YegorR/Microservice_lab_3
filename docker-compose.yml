@@ -3,39 +3,37 @@ version:  '3.7'
 services: #объявление блока с описанием сервисов
 
 
- javatrack: 
-   environment:
+ javatrack: #микросервис
+   environment: #данные бд, а также какой 
      - DATABASE_HOST=db_container
      - DATABASE_USER=${DATABASE_USER}
      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
      - DATABASE_NAME=${DATABASE_NAME}
-     - TRACK_ADDRESS=javatrack
    container_name: javatrack #имя контейнера
    build: ms #указание пути к докерфайлу для сборки
    restart: on-failure #правило перезапуска контейнера
    expose: #открытый порт внутренней сети
      - "8091" 
-   depends_on:
+   depends_on: #сначала должна запуститься бд
      - db_container
 
 
 
- my_nginx:
+ my_nginx: #nginx
    container_name: my_nginx
-   image: nginx:latest #изображение, которое будет запускаться
+   image: nginx:latest
    restart: on-failure
-   ports: #открытый внешний порт, который проксируется на внутренний 
+   ports:
      - "80:80"
    volumes:
-     - ./logs/nginx:/var/log/nginx
-     - ./config/nginx:/etc/nginx/conf.d #пусть до настроек
-   depends_on:
+     - ./logs/nginx:/var/log/nginx  #логи
+     - ./config/nginx:/etc/nginx/conf.d #конфиги
+   depends_on: #сначала должнен запуститься микросервис
      - javatrack
  
  
  
- 
- db_container:
+ db_container: #бд
    container_name: db_container
    image: postgres
    restart: on-failure
@@ -46,4 +44,4 @@ services: #объявление блока с описанием сервисо�
      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
      POSTGRES_DB: ${DATABASE_NAME}
    volumes:
-     - ./db:/var/lib/postgresql/data
+     - ./db:/var/lib/postgresql/data #данные бд

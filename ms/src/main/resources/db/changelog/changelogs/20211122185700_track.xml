@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="20211122185800_track" author="RyazantsevEV">
+        <comment>Таблица треков</comment>
+        <createTable tableName="track">
+            <column name="track_id" type="serial">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="track_name" type="varchar(1024)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="track_order" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="plays_number" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="album_id" type="integer">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="track" baseColumnNames="album_id" constraintName="track_album_fk" referencedTableName="album"
+                                 referencedColumnNames="album_id"/>
+    </changeSet>
+</databaseChangeLog>

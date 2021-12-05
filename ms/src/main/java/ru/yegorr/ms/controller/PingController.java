@@ -14,9 +14,4 @@ public class PingController {
     public String ping() {
         return "pong";
     }
-
-    @GetMapping("/error")
-    public String error() {
-        return "error (";
-    }
 }

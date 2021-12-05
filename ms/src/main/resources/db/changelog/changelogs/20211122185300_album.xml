@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="20211122185300_album" author="RyazantsevEV">
+        <comment>Таблица альбомов</comment>
+        <createTable tableName="album">
+            <column name="album_id" type="serial">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="album_name" type="varchar(1024)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="release_date" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_single" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+            <column name="musician_id" type="integer">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="album" baseColumnNames="musician_id" constraintName="album_musician_fk" referencedTableName="musician"
+                                 referencedColumnNames="musician_id"/>
+    </changeSet>
+</databaseChangeLog>

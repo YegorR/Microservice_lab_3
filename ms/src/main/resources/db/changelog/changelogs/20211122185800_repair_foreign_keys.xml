@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="20211122185800_repair_foreign_keys" author="RyazantsevEV">
+        <comment>Исправление внешних ключей</comment>
+
+        <dropForeignKeyConstraint baseTableName="track" constraintName="track_album_fk"/>
+        <dropForeignKeyConstraint baseTableName="album" constraintName="album_musician_fk"/>
+        
+        <addForeignKeyConstraint baseTableName="track" baseColumnNames="album_id" constraintName="track_album_fk" referencedTableName="album"
+                                 referencedColumnNames="album_id" onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="album" baseColumnNames="musician_id" constraintName="album_musician_fk" referencedTableName="musician"
+                                 referencedColumnNames="musician_id" onDelete="CASCADE"/>
+    </changeSet>
+</databaseChangeLog>
