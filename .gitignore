@@ -1,2 +1,6 @@
 logs/
 /db/
+/db_audio/
+/db_track/
+/file_audio/
+/file_track/

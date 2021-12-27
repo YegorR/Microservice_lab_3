@@ -1,47 +1,72 @@
 version:  '3.7'
- 
 services: #объявление блока с описанием сервисов
+    javatrack: #микросервис треков
+        environment: #данные бд, а также какой 
+         - DATABASE_HOST=db_track
+         - DATABASE_USER=${DATABASE_TRACK_USER}
+         - DATABASE_PASSWORD=${DATABASE_TRACK_PASSWORD}
+         - DATABASE_NAME=${DATABASE_TRACK_NAME}
+        container_name: javatrack #имя контейнера
+        build: track_ms #указание пути к докерфайлу для сборки
+        restart: on-failure #правило перезапуска контейнера
+        expose: #открытый порт внутренней сети
+          - "8091" 
+        depends_on: #сначала должна запуститься бд
+         - db_track
+     
+    javafile: #микросервис файлов
+        environment: #данные бд, а также какой 
+         - DATABASE_HOST=db_file
+         - DATABASE_USER=${DATABASE_FILE_USER}
+         - DATABASE_PASSWORD=${DATABASE_FILE_PASSWORD}
+         - DATABASE_NAME=${DATABASE_FILE_NAME}
+        container_name: javafile #имя контейнера
+        build: audio_ms #указание пути к докерфайлу для сборки
+        restart: on-failure #правило перезапуска контейнера
+        expose: #открытый порт внутренней сети
+         - "8082" 
+        depends_on: #сначала должна запуститься бд
+         - db_file
+        
+        volumes: # загружаемые файлы
+         - ./file_audio:/app/files-upload-audio
+         - ./file_image:/app/files-upload-image
 
-
- javatrack: #микросервис
-   environment: #данные бд, а также какой 
-     - DATABASE_HOST=db_container
-     - DATABASE_USER=${DATABASE_USER}
-     - DATABASE_PASSWORD=${DATABASE_PASSWORD}
-     - DATABASE_NAME=${DATABASE_NAME}
-   container_name: javatrack #имя контейнера
-   build: track_ms #указание пути к докерфайлу для сборки
-   restart: on-failure #правило перезапуска контейнера
-   expose: #открытый порт внутренней сети
-     - "8091" 
-   depends_on: #сначала должна запуститься бд
-     - db_container
-
-
-
- my_nginx: #nginx
-   container_name: my_nginx
-   image: nginx:latest
-   restart: on-failure
-   ports:
-     - "80:80"
-   volumes:
-     - ./logs/nginx:/var/log/nginx  #логи
-     - ./config/nginx:/etc/nginx/conf.d #конфиги
-   depends_on: #сначала должнен запуститься микросервис
-     - javatrack
+    my_nginx: #nginx
+        container_name: my_nginx
+        image: nginx:latest
+        restart: on-failure
+        ports:
+         - "80:80"
+        volumes:
+         - ./logs/nginx:/var/log/nginx  #логи
+         - ./config/nginx:/etc/nginx/conf.d #конфиги
+        depends_on: #сначала должнен запуститься микросервис
+         - javatrack
+         - javafile
  
- 
- 
- db_container: #бд
-   container_name: db_container
-   image: postgres
-   restart: on-failure
-   expose:
-     - "5432"
-   environment: #использование переменных окружения
-     POSTGRES_USER: ${DATABASE_USER}
-     POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
-     POSTGRES_DB: ${DATABASE_NAME}
-   volumes:
-     - ./db:/var/lib/postgresql/data #данные бд
+    db_track: #бд треков
+        container_name: db_track
+        image: postgres
+        restart: on-failure
+        expose:
+         - "5432"
+        environment: #использование переменных окружения
+         POSTGRES_USER: ${DATABASE_TRACK_USER}
+         POSTGRES_PASSWORD: ${DATABASE_TRACK_PASSWORD}
+         POSTGRES_DB: ${DATABASE_TRACK_NAME}
+        volumes:
+         - ./db_track:/var/lib/postgresql/data #данные бд
+      
+    db_file: #бд файлов
+        container_name: db_file
+        image: postgres
+        restart: on-failure
+        expose:
+         - "5432"
+        environment: #использование переменных окружения
+         POSTGRES_USER: ${DATABASE_FILE_USER}
+         POSTGRES_PASSWORD: ${DATABASE_FILE_PASSWORD}
+         POSTGRES_DB: ${DATABASE_FILE_NAME}
+        volumes:
+         - ./db_audio:/var/lib/postgresql/data #данные бд
