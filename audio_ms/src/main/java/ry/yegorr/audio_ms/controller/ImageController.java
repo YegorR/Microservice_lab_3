@@ -21,9 +21,9 @@ public class ImageController {
     }
 
     @PostMapping("/image")
-    public void loadImage(@RequestParam("image") MultipartFile file)
+    public Long loadImage(@RequestParam("image") MultipartFile file)
             throws ApplicationException {
-        imageService.saveImage(file);
+        return imageService.saveImage(file);
     }
 
     @GetMapping(value = "/image/{image_id}", produces = "image/png")
