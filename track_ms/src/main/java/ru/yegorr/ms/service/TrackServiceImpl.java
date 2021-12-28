@@ -34,6 +34,7 @@ public class TrackServiceImpl implements TrackService {
     response.setAlbumName(track.getAlbum().getName());
     response.setMusicianId(track.getAlbum().getMusician().getMusicianId());
     response.setMusicianName(track.getAlbum().getMusician().getName());
+    response.setPlaysNumber(track.getPlaysNumber());
 
     return response;
   }

@@ -13,6 +13,8 @@ public class TrackDto {
 
   private String musicianName;
 
+  private int playsNumber;
+
   public Long getId() {
     return id;
   }
@@ -60,4 +62,12 @@ public class TrackDto {
   public void setMusicianName(String musicianName) {
     this.musicianName = musicianName;
   }
+
+    public int getPlaysNumber() {
+        return playsNumber;
+    }
+
+    public void setPlaysNumber(int playsNumber) {
+        this.playsNumber = playsNumber;
+    }
 }

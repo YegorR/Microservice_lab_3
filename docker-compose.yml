@@ -6,6 +6,7 @@ services: #объявление блока с описанием сервисо�
          - DATABASE_USER=${DATABASE_TRACK_USER}
          - DATABASE_PASSWORD=${DATABASE_TRACK_PASSWORD}
          - DATABASE_NAME=${DATABASE_TRACK_NAME}
+         - RABBITMQ_HOST=rabbit_brocker
         container_name: javatrack #имя контейнера
         build: track_ms #указание пути к докерфайлу для сборки
         restart: on-failure #правило перезапуска контейнера
@@ -13,6 +14,7 @@ services: #объявление блока с описанием сервисо�
           - "8091" 
         depends_on: #сначала должна запуститься бд
          - db_track
+         - rabbit_brocker
      
     javafile: #микросервис файлов
         environment: #данные бд, а также какой 
@@ -20,6 +22,7 @@ services: #объявление блока с описанием сервисо�
          - DATABASE_USER=${DATABASE_FILE_USER}
          - DATABASE_PASSWORD=${DATABASE_FILE_PASSWORD}
          - DATABASE_NAME=${DATABASE_FILE_NAME}
+         - RABBITMQ_HOST=rabbit_brocker
         container_name: javafile #имя контейнера
         build: audio_ms #указание пути к докерфайлу для сборки
         restart: on-failure #правило перезапуска контейнера
@@ -27,6 +30,7 @@ services: #объявление блока с описанием сервисо�
          - "8082" 
         depends_on: #сначала должна запуститься бд
          - db_file
+         - rabbit_brocker
         
         volumes: # загружаемые файлы
          - ./file_audio:/app/files-upload-audio
@@ -70,3 +74,20 @@ services: #объявление блока с описанием сервисо�
          POSTGRES_DB: ${DATABASE_FILE_NAME}
         volumes:
          - ./db_audio:/var/lib/postgresql/data #данные бд
+         
+         
+    rabbit_brocker: # RabbitMQ
+        container_name: rabbit_brocker
+        image: rabbitmq:3-management
+        restart: on-failure
+        expose:
+         - "5672"
+         - "15672"
+        ports:
+         - "15672:15672"
+        #environment:
+        # RABBITMQ_DEFAULT_USER: "admin"
+         #RABBITMQ_DEFAULT_PASS: "admin"    
+        volumes:
+        - ./logs/rabbit:/var/log/rabbitmq
+        

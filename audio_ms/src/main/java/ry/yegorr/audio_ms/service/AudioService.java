@@ -1,5 +1,6 @@
 package ry.yegorr.audio_ms.service;
 
+import org.springframework.amqp.rabbit.core.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.*;
@@ -23,16 +24,24 @@ public class AudioService {
 
     private final AudioRepository audioRepository;
 
+    private final String downloadAudioQueue;
+
     private String rootPath;
 
+    private RabbitTemplate rabbitTemplate;
+
     @Autowired
-    public AudioService(AudioRepository audioRepository, @Value("${audio.document-path}") String rootPath) {
+    public AudioService(
+            AudioRepository audioRepository, @Value("${audio.document-path}") String rootPath, @Value("${queue.download-audio-queue}") String downloadAudioQueue
+    ) {
         this.audioRepository = audioRepository;
         this.rootPath = rootPath;
 
         if (!this.rootPath.endsWith("/")) {
             this.rootPath += "/";
         }
+
+        this.downloadAudioQueue = downloadAudioQueue;
     }
 
     public void saveAudio(Long trackId, MultipartFile file) throws ApplicationException {
@@ -53,10 +62,16 @@ public class AudioService {
     public byte[] getAudio(Long trackId) throws ApplicationException {
         try {
             AudioEntity audioEntity = audioRepository.findByTrackId(trackId).orElseThrow(() -> new ResourceNotFoundException("Track don't found"));
-            return Files.readAllBytes(Paths.get(audioEntity.getAddress()));
+            byte[] result =  Files.readAllBytes(Paths.get(audioEntity.getAddress()));
+            rabbitTemplate.convertAndSend(downloadAudioQueue, trackId);
+            return result;
         } catch (IOException exception) {
             throw new ApplicationException("Cannot get file", exception);
         }
+    }
 
+    @Autowired
+    public void setRabbitTemplate(RabbitTemplate rabbitTemplate) {
+        this.rabbitTemplate = rabbitTemplate;
     }
 }
